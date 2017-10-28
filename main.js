@@ -206,27 +206,27 @@ function GenerateUpgrade(level) {
 }
 
 function BuyMiner() {
-    if (ores.list[1].amounts[2] >= 10 && ores.list[2].amounts[2] >= 10 && ores.list[3].amounts[2] >= 10) {
-        ores.list[1].changeAmount(2, -10);
-        ores.list[2].changeAmount(2, -10);
-        ores.list[3].changeAmount(2, -10);
+    if (ores.list[1].amounts[2] >= 1 && ores.list[2].amounts[2] >= 1 && ores.list[3].amounts[2] >= 1) {
+        ores.list[1].changeAmount(2, -1);
+        ores.list[2].changeAmount(2, -1);
+        ores.list[3].changeAmount(2, -1);
         minerElement.innerText = ++minerCount;
     }
 }
 
 function BuyCrusher() {
-    if (ores.list[1].amounts[2] >= 20 && ores.list[2].amounts[2] >= 10) {
-        ores.list[1].changeAmount(2, -20);
-        ores.list[2].changeAmount(2, -10);
+    if (ores.list[1].amounts[2] >= 2 && ores.list[2].amounts[2] >= 1) {
+        ores.list[1].changeAmount(2, -2);
+        ores.list[2].changeAmount(2, -1);
         crusherElement.innerText = ++crusherCount;
     }
 }
 
 function BuySmelter() {
-    if (ores.list[1].amounts[2] >= 10 && ores.list[3].amounts[2] >= 10 && ores.list[4].amounts[2] >= 10) {
-        ores.list[1].changeAmount(2, -10);
-        ores.list[3].changeAmount(2, -10);
-        ores.list[4].changeAmount(2, -10);
+    if (ores.list[1].amounts[2] >= 1 && ores.list[3].amounts[2] >= 1 && ores.list[4].amounts[2] >= 1) {
+        ores.list[1].changeAmount(2, -1);
+        ores.list[3].changeAmount(2, -1);
+        ores.list[4].changeAmount(2, -1);
         crusherElement.innerText = ++crusherCount;
     }
 }
