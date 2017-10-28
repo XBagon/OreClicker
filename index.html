@@ -1,0 +1,29 @@
+<!doctype html>
+<html style="filter: invert(100%); background-color: black">
+
+<head>
+    <title>OreClicker</title>
+    <script type="text/javascript" src="main.js"></script>
+    <link rel="stylesheet" type="text/css" href="StyleSheet.css">
+</head>
+
+<body onload="Setup()">
+
+<div style="float: left" id="left">
+    <button onclick="OnClickMine()">Mine!</button>
+    <p>
+        <strong>Stone: <span id="stone" class="tabbed">0</span></strong>
+        <strong>Miner: <span id="miner" class="tabbed">0</span></strong>
+        <strong>Crusher: <span id="crusher" class="tabbed">0</span></strong>
+        <strong>Smelter: <span id="smelter" class="tabbed">0</span></strong>
+    </p>
+</div>
+<div style="float: right; display: flex; width: 50%; height:100px">
+    <button style="width: 33%" onclick="BuyMiner(this.id)">Buy Miner</button>
+    <button style="width: 33%" onclick="BuyCrusher(this.id)">Buy Crusher</button>
+    <button style="width: 33%" onclick="BuySmelter(this.id)">Buy Smelter</button>
+</div>
+
+</body>
+
+</html>
