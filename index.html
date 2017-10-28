@@ -1,5 +1,6 @@
 <!doctype html>
-<html style="filter: invert(100%); background-color: black">
+<html>
+<!--<html style="filter: invert(100%); background-color: black">-->
 
 <head>
     <title>OreClicker</title>
@@ -8,22 +9,35 @@
 </head>
 
 <body onload="Setup()">
+<div>
+    <div style="float: left" id="left">
+        <button onclick="OnClickMine()">Mine!</button>
+        <p>
+            <strong>Stone: <span id="stone" class="tabbed">0</span></strong>
+        </p>
+    </div>
+    <div style="width: 33%; float: left; height: 100%" id="middle">
+        SMELTING POT:
+        <div style="position: relative; height: 170px; width : 100px">
+            <img id="cauldronback" src="cauldronback.png" style="position: absolute; top: 0; left: 0; image-rendering: pixelated"/>
+            <canvas id="fluid" style="position: absolute; top: 50px; left: 0;"></canvas>
+            <img id="cauldronfront" src="cauldronfront.png" ondrop="addtocauldron(event)" ondragover="event.preventDefault()" style="position: absolute; top: 0; left: 0; image-rendering: pixelated"/>
+        </div>
+        <button id="makeingotbutton" disabled="true" onclick="makeingot()">MAKE INGOT!</button>
+        <div>
+            MINING TOOL:
+            <div>HANDLE:</div>
+            <div>HEAD:</div>
+        </div>
+        <div>
+            <button style="width: 33%; display: block" onclick="BuyCrusher(this.id)">Hire Worker</button>
+        </div>
+    </div>
+    <div style="float: right; width: 33%; height: 100%" id="right">
+        INGOTS:
 
-<div style="float: left" id="left">
-    <button onclick="OnClickMine()">Mine!</button>
-    <p>
-        <strong>Stone: <span id="stone" class="tabbed">0</span></strong>
-        <strong>Miner: <span id="miner" class="tabbed">0</span></strong>
-        <strong>Crusher: <span id="crusher" class="tabbed">0</span></strong>
-        <strong>Smelter: <span id="smelter" class="tabbed">0</span></strong>
-    </p>
+    </div>
 </div>
-<div style="float: right; display: flex; width: 50%; height:100px">
-    <button style="width: 33%" onclick="BuyMiner(this.id)">Buy Miner</button>
-    <button style="width: 33%" onclick="BuyCrusher(this.id)">Buy Crusher</button>
-    <button style="width: 33%" onclick="BuySmelter(this.id)">Buy Smelter</button>
-</div>
-
 </body>
 
 </html>
