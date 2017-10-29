@@ -24,7 +24,6 @@
     ingots = [];
 
 
-
     cauldroncontent = [];
     cauldroncontent.color = [0, 0, 0];
 
