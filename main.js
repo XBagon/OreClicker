@@ -15,12 +15,19 @@
     crusherElement = document.getElementById("crusher");
     smelterElement = document.getElementById("smelter");
 
+    smeltingpotsizeElement = document.getElementById("smeltingpotsize");
+    smeltingpotsizenumber = document.getElementById("smeltingpotsizenumber");
+
+    smeltingpotsize = 1;
+
+    ores = { list: [], totalweight: 0, weightslist: [] };
+    ingots = [];
+
+
+
     cauldroncontent = [];
     cauldroncontent.color = [0, 0, 0];
 
-    ingots = [];
-
-    ores = { list: [], totalweight: 0, weightslist: [] };
     upgrades = [];
 
     stoneCount = 0;
@@ -38,15 +45,37 @@
     //smelterEfficency = 0.01;
     smelterSpeed = 1;
 
+
+
     nuggetimg = new Image();
     nuggetimg.src = "nugget.png";
     nuggetimg.onload = function () {
-        //initores();
-        initrandomores(6);
+        if (document.cookie) {
+            var cookie = JSON.parse(document.cookie);
+            for (var i = 0; i < cookie[0].list.length; i++) {
+                var e = cookie[0].list[i];
+                var ore = AddOre(e.name, e.symbol, e.weight, e.color);
+                ore.amounts = e.amounts;
+                ore.changeAmount(0, 0, 0);
+                ore.changeAmount(1, 0, 0);
+                ore.changeAmount(2, 0, 2);
+            }
+            for (var j = 0; j < cookie[1].length; j++) {
+                var e = cookie[1][j];
+                var ingot = AddIngot(e.name,e.color);
+                ingot.amount = e.amount;
+                ingot.changeAmount(0, 0);
+                ingot.recipe = e.recipe;
+            }
+        } else {
+            //initores();
+            initrandomores(6);
+        }
     }
 
     ingotimg = new Image();
     ingotimg.src = "ingot.png";
+
 
     fluidimg = new Image();
     fluidimg.src = "fluidincauldron.png";
@@ -71,9 +100,18 @@ function initores() {
 function initrandomores(count) {
     for (var i = 0; i < count; i++) {
         var name = RandomName();
-        AddOre(name, name.charAt(0).toUpperCase() + name.charAt(1), Math.floor(Math.random() * 100), [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)])
+        var symbol = name.charAt(0).toUpperCase() + name.charAt(1);
+        for (var j = 0; j < ores.list.length; j++) {
+            if (ores.list[j].symbol == symbol) {
+                i--;
+                continue;
+            }
+        }
+        AddOre(name, symbol, Math.floor(Math.random() * 100), [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)])
     }
 }
+
+
 
 function initfluid() {
     var ctx = cauldronfluid.getContext("2d");
@@ -88,7 +126,9 @@ function AddOre(name,symbol,weight,color) {
     ores.weightslist.push(ores.totalweight);
 
     ore.id = ores.list.length - 1;
-    ore.elements = AddOreHTML(ores.list.length-1);
+    ore.elements = AddOreHTML(ores.list.length - 1);
+
+    return ore;
 }
 
 function Ore(name, symbol, weight, color) {
@@ -134,6 +174,7 @@ function Ingot(materials, color) {
 
     for (var i = 0; i < materials.length; i++) {
         var material = materials[i];
+        if (material == null) continue;
         if (material instanceof Ore) {
             var x = this.recipe[material.id];
             if (x == undefined) {
@@ -162,14 +203,14 @@ function Ingot(materials, color) {
     }
 
     this.amount = 0;
-    this.changeAmount = function (add, dec) {
-        this.element.innerText = (this.amount += add).toFixed(dec);
+    this.changeAmount = function(add, dec) {
+        this.elements[0].innerText = (this.amount += add).toFixed(dec);
     };
     var symbols = [];
     for (var key in this.recipe) {
         var s = ores.list[key].symbol;
         var x = this.recipe[key];
-        if (x > 1) s += String.fromCharCode(8320 + x);
+        if (x > 1) s += x;
         symbols.push(s);
     }
     symbols.sort(function (a, b) {
@@ -179,7 +220,7 @@ function Ingot(materials, color) {
     });
     this.name = symbols.join("");
     this.color = color;
-    this.element = null;
+    this.elements = [];
     this.pay = function(amount) {
         if (this.amount >= amount) {
             this.changeAmount(-amount, 0);
@@ -258,6 +299,15 @@ function AddOreHTML(id) {
 function AddIngotHTML(id) {
     var ingot = ingots[id];
 
+    var d = document.createElement("div");
+
+    var bt = document.createElement("button");
+    bt.setAttribute("onclick", `OnTrash(${id})`);
+    bt.innerText = "X";
+    bt.style.position = "absolute";
+    bt.style.top = "0px";
+    bt.style.left = "60px";
+
     var bc = document.createElement("button");
     bc.setAttribute("onclick", `OnClickSell(${id})`);
     bc.innerText = "Sell!";
@@ -266,8 +316,10 @@ function AddIngotHTML(id) {
     i.setAttribute("draggable", "true");
     i.setAttribute("ondragstart", `ondragingot(event,${id})`);
     var p = document.createElement("p");
-    p.innerText = ingot.name + " Ingot: ";
+    p.innerHTML = ingot.name.replace(/(\d+)/g,"<sub>$1</sub>") + " Ingot: ";
+    p.style.position = "relative";
     p.prepend(i);
+    p.prepend(bt);
 
     var p0 = document.createElement("p");
 
@@ -276,14 +328,17 @@ function AddIngotHTML(id) {
     var ssa = document.createElement("span");
     ssa.innerText = "0";
     ssa.setAttribute("class", "tabbed");
+
     p0.appendChild(ss);
     p0.appendChild(ssa);
 
-    right.appendChild(p);
-    right.appendChild(p0);
+    d.appendChild(p);
+    d.appendChild(p0);
 
-    right.appendChild(bc);
-    return ssa;
+    d.appendChild(bc);
+
+    right.appendChild(d);
+    return [ssa,d];
 }
 
 function CreateColoredNugget(color) {
@@ -347,7 +402,10 @@ function addtocauldron(event) {
     if (id != "") {
 
         var current = parseInt(cauldronfluid.style.top);
-        if (current >= 0) { 
+        if (current == 50) smeltingpotsize = smeltingpotsizeElement.value;
+
+        var toadd = Math.floor(50 / smeltingpotsize);
+        if (current >= toadd ) { 
 
             if (type == "o") {
                 if (!ores.list[id].pay(1)) return;
@@ -358,7 +416,9 @@ function addtocauldron(event) {
             }
 
 
-            cauldronfluid.style.top = current - 25 + "px";
+
+
+            cauldronfluid.style.top = current - toadd + "px";
 
 
             var ctx = cauldronfluid.getContext("2d");
@@ -383,7 +443,7 @@ function addtocauldron(event) {
 
             ctx.putImageData(data, 0, 0);
 
-            if (current - 25 <= 0) {
+            if (current - 2*toadd <= 0) {
                 makeingotbutton.disabled = false;
             }
         }
@@ -391,23 +451,34 @@ function addtocauldron(event) {
     }
 }
 
+function AddIngot(name,color) {
+    var ingot = new Ingot([], color);
+    ingot.name = name;
+    ingots.push(ingot);
+    ingot.id = ingots.length - 1;
+    ingot.elements = AddIngotHTML(ingots.length - 1);
+
+    return ingot;
+}
+
 function makeingot() {
     var ingot = new Ingot(cauldroncontent, cauldroncontent.color);
     for (var i = 0; i < ingots.length; i++) {
         if (ingots[i].name == ingot.name) {
-            ingots[i].changeAmount(2, 0);
+            ingots[i].changeAmount(parseInt(smeltingpotsize), 0);
             cauldroncontent = [];
             cauldroncontent.color = [0, 0, 0];
             cauldronfluid.style.top = 50 + "px";
             makeingotbutton.disabled = true;
+            ingots[i].elements[1].style.display = "block";
             return;
         }
     }
 
     ingots.push(ingot);
     ingot.id = ingots.length - 1;
-    ingot.element = AddIngotHTML(ingots.length - 1);
-    ingot.changeAmount(2, 0);
+    ingot.elements = AddIngotHTML(ingots.length - 1);
+    ingot.changeAmount(parseInt(smeltingpotsize), 0);
 
 
     cauldroncontent = [];
@@ -440,6 +511,10 @@ function OnClickSmelt(id) {
 
 function OnClickSell(id) {
     
+}
+
+function OnTrash(id) {
+    ingots[id].elements[1].style.display = "none";
 }
 
 function OnTick() {
@@ -500,7 +575,17 @@ function Upgrade() {
     this.effects = [0,0,0,0,0];
 }
 
+function OnExit() {
+    if(!reset)
+    document.cookie = JSON.stringify([ores,ingots]);
+}
 
+var reset = false;
+function Reset() {
+    reset = true;
+    document.cookie = "";
+    location.reload();
+}
 
 
     function RandomName()

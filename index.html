@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="StyleSheet.css">
 </head>
 
-<body onload="Setup()">
+<body onload="Setup()" onbeforeunload="OnExit()" onunload="OnExit()">
 <div>
     <div style="float: left" id="left">
         <button onclick="OnClickMine()">Mine!</button>
@@ -18,10 +18,12 @@
     </div>
     <div style="width: 33%; float: left; height: 100%" id="middle">
         SMELTING POT:
-        <div style="position: relative; height: 170px; width : 100px">
+        <div style="position: relative; height: 170px; width: 100px;">
             <img id="cauldronback" src="cauldronback.png" style="position: absolute; top: 0; left: 0; image-rendering: pixelated"/>
             <canvas id="fluid" style="position: absolute; top: 50px; left: 0;"></canvas>
             <img id="cauldronfront" src="cauldronfront.png" ondrop="addtocauldron(event)" ondragover="event.preventDefault()" style="position: absolute; top: 0; left: 0; image-rendering: pixelated"/>
+            <input id="smeltingpotsize" list="sizes" oninput="smeltingpotsizenumber.innerText = this.value" value="1" type="range" orient="vertical" class="vert" min="1" max="10" style="position: absolute; top: 0px; right: -75px;"/>
+            <span id="smeltingpotsizenumber" style="position: absolute; top: 150px; right: -68px;">1</span>
         </div>
         <button id="makeingotbutton" disabled="true" onclick="makeingot()">MAKE INGOT!</button>
         <div>
@@ -34,9 +36,9 @@
         </div>
     </div>
     <div style="float: right; width: 33%; height: 100%" id="right">
-        INGOTS:
 
     </div>
+    <button onclick="Reset()" style="position: absolute; top: 0; right: 0;">RESET</button>
 </div>
 </body>
 
