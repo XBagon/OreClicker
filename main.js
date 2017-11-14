@@ -4,11 +4,16 @@
     vowels = ["a", "e", "i", "o", "u", "y"];
     consonants = ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "qu", "r", "s", "t", "v", "w", "x", "z"];
 
-    left = document.getElementById("left");
-    right = document.getElementById("right");
+    column0 = document.getElementById("column0");
+    column2 = document.getElementById("column2");
 
     cauldronfluid = document.getElementById("fluid");
     makeingotbutton = document.getElementById("makeingotbutton");
+
+    pickaxehead = document.getElementById("pickaxehead");
+    pickaxematerial = document.getElementById("pickaxematerial");
+    pickaxeminingspeedElement = document.getElementById("pickaxeminingspeed");
+    pickaxedurabilityElement = document.getElementById("pickaxedurability");
 
     stoneElement = document.getElementById("stone");
     minerElement = document.getElementById("miner");
@@ -27,6 +32,11 @@
     cauldroncontent = [];
     cauldroncontent.color = [0, 0, 0];
 
+    pickaxematerialid = -1;
+    pickaxeminingspeed = 0;
+    pickaxedurability = 0;
+
+
     upgrades = [];
 
     stoneCount = 0;
@@ -44,47 +54,73 @@
     //smelterEfficency = 0.01;
     smelterSpeed = 1;
 
-
+    nuggetloaded = false;
 
     nuggetimg = new Image();
     nuggetimg.src = "nugget.png";
     nuggetimg.onload = function () {
-        if (document.cookie) {
-            var cookie = JSON.parse(document.cookie);
-            for (var i = 0; i < cookie[0].list.length; i++) {
-                var e = cookie[0].list[i];
-                var ore = AddOre(e.name, e.symbol, e.weight, e.color);
-                ore.amounts = e.amounts;
-                ore.changeAmount(0, 0, 0);
-                ore.changeAmount(1, 0, 0);
-                ore.changeAmount(2, 0, 2);
-            }
-            for (var j = 0; j < cookie[1].length; j++) {
-                var e = cookie[1][j];
-                var ingot = AddIngot(e.name,e.color);
-                ingot.amount = e.amount;
-                ingot.changeAmount(0, 0);
-                ingot.recipe = e.recipe;
-            }
-        } else {
-            //initores();
-            initrandomores(6);
-        }
+        nuggetloaded = true;
+        initcookies();
     }
+
+    ingotloaded = false;
 
     ingotimg = new Image();
     ingotimg.src = "ingot.png";
+    ingotimg.onload = function () {
+        ingotloaded = true;
+        initcookies();
+    }
 
+    pickaxeheadloaded = false;
+
+    pickaxeheadimg = new Image();
+    pickaxeheadimg.src = "PickaxeHead.png";
+    pickaxeheadimg.onload = function () {
+        pickaxeheadloaded = true;
+        initcookies();
+        initpickaxe();
+    }
+
+    fluidloaded = false;
 
     fluidimg = new Image();
     fluidimg.src = "fluidincauldron.png";
     fluidimg.onload = function () {
+        fluidloaded = true;
         initfluid();
+        initcookies();
     }
     
 
 
     window.setInterval(OnTick, 1000/tps);
+}
+
+function initcookies() {
+    if (!(nuggetloaded && ingotloaded && pickaxeheadloaded && fluidloaded)) return;
+    if (window.localStorage.getItem("xbagon-oreclicker")) {
+        var cookie = JSON.parse(window.localStorage.getItem("xbagon-oreclicker"));
+        for (var i = 0; i < cookie[0].list.length; i++) {
+            var e = cookie[0].list[i];
+            var ore = AddOre(e.name, e.symbol, e.weight, e.color, e.boilingpoint, e.density, e.physicalweight, e.hardness);
+            ore.amounts = e.amounts;
+            ore.changeAmount(0, 0, 0);
+            ore.changeAmount(1, 0, 0);
+            ore.changeAmount(2, 0, 2);
+        }
+        for (var j = 0; j < cookie[1].length; j++) {
+            var e = cookie[1][j];
+            var ingot = AddIngot(e.name, e.color);
+            ingot.amount = e.amount;
+            ingot.changeAmount(0, 0);
+            ingot.recipe = e.recipe;
+        }
+        stoneCount = cookie[2];
+    } else {
+        //initores();
+        initrandomores(6);
+    }
 }
 
 function initores() {
@@ -106,11 +142,11 @@ function initrandomores(count) {
                 continue;
             }
         }
-        AddOre(name, symbol, Math.floor(Math.random() * 100), [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)])
+        var weight = Math.floor(Math.random() * 100);
+
+        AddOre(name, symbol, weight, [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)], Math.random() * weight * 10, Math.random() * weight / 10, Math.random() * weight / 10, Math.random() * 10);
     }
 }
-
-
 
 function initfluid() {
     var ctx = cauldronfluid.getContext("2d");
@@ -118,7 +154,13 @@ function initfluid() {
     fluidcolordata = ctx.getImageData(0, 0, cauldronfluid.width, cauldronfluid.height);
 }
 
-function AddOre(name,symbol,weight,color) {
+function initpickaxe() {
+    var ctx = pickaxehead.getContext("2d");
+    ctx.drawImage(pickaxeheadimg, 0, 0);
+    pickaxeheadcolordata = ctx.getImageData(0, 0, pickaxehead.width, pickaxehead.height);
+}
+
+function AddOre(name, symbol, weight, color, boilingpoint, density, physicalweight, hardness) {
     var ore = new Ore(name, symbol, weight, color);
     ores.totalweight += ore.weight;
     ores.list.push(ore);
@@ -126,6 +168,11 @@ function AddOre(name,symbol,weight,color) {
 
     ore.id = ores.list.length - 1;
     ore.elements = AddOreHTML(ores.list.length - 1);
+
+    ore.boilingpoint = boilingpoint;
+    ore.density = density;
+    ore.physicalweight = physicalweight;
+    ore.hardness = hardness;
 
     return ore;
 }
@@ -166,6 +213,10 @@ function Ore(name, symbol, weight, color) {
         }
         return false;
     }
+    this.boilingpoint = 0;
+    this.density = 0;
+    this.physicalweight = 0;
+    this.hardness = 0;
 }
 
 function Ingot(materials, color) {
@@ -182,12 +233,14 @@ function Ingot(materials, color) {
                 this.recipe[material.id]++;
             }
         } else {
-            for (var id in material.recipe) {
-                var x = this.recipe[id];
-                if (x == undefined) {
-                    this.recipe[id] = material.recipe[id];
-                } else {
-                    this.recipe[id]+= material.recipe[id];
+            for (var j = 0; j < material.recipe.length; j++) {
+                if (material.recipe[j] != undefined) {
+                    var x = this.recipe[j];
+                    if (x == undefined) {
+                        this.recipe[j] = material.recipe[j];
+                    } else {
+                        this.recipe[j] += material.recipe[j];
+                    }
                 }
             }
         }
@@ -227,6 +280,27 @@ function Ingot(materials, color) {
         }
         return false;
     }
+    this.boilingpoint = 0;
+    this.density = 0;
+    this.physicalweight = 0;
+    this.hardness = 0;
+
+    var recipeingredientamount = 0;
+    for (var k = 0; k < this.recipe.length; k++) {
+        var oreamount = this.recipe[k];
+        if (oreamount != undefined) {
+            this.boilingpoint += ores.list[k].boilingpoint*oreamount;
+            this.density += ores.list[k].density * oreamount;
+            this.physicalweight += ores.list[k].physicalweight * oreamount;
+            this.hardness += ores.list[k].hardness * oreamount;
+            recipeingredientamount += oreamount;
+        }
+    }
+    this.boilingpoint = (this.boilingpoint / recipeingredientamount) * (Math.random()+0.5);
+    this.density = (this.density / recipeingredientamount) * (Math.random() + 0.5);
+    this.physicalweight = (this.physicalweight / recipeingredientamount) * (Math.random() + 0.5);
+    this.hardness = (this.hardness / recipeingredientamount) * (Math.random() + 0.5);
+
 }
 
 function GetGCD(o) {
@@ -283,15 +357,15 @@ function AddOreHTML(id) {
 
     var arr = [];
 
-    left.appendChild(p);
-    left.appendChild(p0);
+    column0.appendChild(p);
+    column0.appendChild(p0);
 
     arr.push(sma);
     arr.push(sca);
     arr.push(ssa);
 
-    left.appendChild(bc);
-    left.appendChild(bs);
+    column0.appendChild(bc);
+    column0.appendChild(bs);
     return arr;
 }
 
@@ -336,7 +410,7 @@ function AddIngotHTML(id) {
 
     d.appendChild(bc);
 
-    right.appendChild(d);
+    column2.appendChild(d);
     return [ssa,d];
 }
 
@@ -442,7 +516,7 @@ function addtocauldron(event) {
 
             ctx.putImageData(data, 0, 0);
 
-            if (current - 2*toadd <= 0) {
+            if (current - 2*toadd < 0) {
                 makeingotbutton.disabled = false;
             }
         }
@@ -486,6 +560,31 @@ function makeingot() {
     makeingotbutton.disabled = true;
 }
 
+function makepickaxe(event) {
+    id = event.dataTransfer.getData("ingot");
+    if (id != "") {
+        var ctx = pickaxehead.getContext("2d");
+
+        var data = ctx.getImageData(0, 0, pickaxehead.width, pickaxehead.height);
+
+
+        for (var i = 0, length = data.data.length; i < length; i += 4) {
+            data.data[i] = Math.min(255, ((pickaxeheadcolordata.data[i] / 255)) * ingots[id].color[0]);
+            data.data[i + 1] = Math.min(255, ((pickaxeheadcolordata.data[i + 1] / 255)) * ingots[id].color[1]);
+            data.data[i + 2] = Math.min(255, ((pickaxeheadcolordata.data[i + 2] / 255)) * ingots[id].color[2]);
+        }
+
+        ctx.putImageData(data, 0, 0);
+
+        pickaxematerialid = id;
+        pickaxematerial.innerText = ingots[id].name;
+        pickaxeminingspeed = Math.max(0, ingots[id].density + ingots[id].hardness - ingots[id].physicalweight) + 0.1;
+        pickaxeminingspeedElement.innerText = pickaxeminingspeed;
+        pickaxedurability = (ingots[id].physicalweight * 1000 + ingots[id].boilingpoint) / 100;
+        pickaxedurabilityElement.innerText = pickaxedurability;
+    }
+}
+
 function GetRandomOre() {
     var random = Math.floor(Math.random() * ores.totalweight);
     for (var i = 0; i < ores.weightslist.length; i++) { //too lazy for binary search
@@ -514,6 +613,21 @@ function OnClickSell(id) {
 
 function OnTrash(id) {
     ingots[id].elements[1].style.display = "none";
+}
+
+function SearchIngots(value) {
+    for (var i = 1; i < column2.children.length; i++) {
+        if (column2.children[i].children[0].innerText.substring(1).toLowerCase().indexOf(value) != -1) {
+            column2.children[i].style.display = "block";
+        } else {
+            column2.children[i].style.display = "none";
+        }
+    }
+    
+}
+
+function Attack() {
+    
 }
 
 function OnTick() {
@@ -576,13 +690,13 @@ function Upgrade() {
 
 function OnExit() {
     if(!reset)
-    document.cookie = JSON.stringify([ores,ingots]);
+    window.localStorage.setItem("xbagon-oreclicker",JSON.stringify([ores,ingots,stoneCount,pickaxematerialid]));
 }
 
 var reset = false;
 function Reset() {
     reset = true;
-    document.cookie = "";
+    window.localStorage.removeItem("xbagon-oreclicker");
     location.reload();
 }
 

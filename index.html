@@ -10,13 +10,13 @@
 
 <body onload="Setup()" onbeforeunload="OnExit()" onunload="OnExit()">
 <div>
-    <div style="float: left" id="left">
+    <div style="float: left" width: 25%; id="column0">
         <button onclick="OnClickMine()">Mine!</button>
         <p>
             <strong>Stone: <span id="stone" class="tabbed">0</span></strong>
         </p>
     </div>
-    <div style="width: 33%; float: left; height: 100%" id="middle">
+    <div style="width: 25%; float: left; height: 100%" id="column1">
         SMELTING POT:
         <div style="position: relative; height: 170px; width: 100px;">
             <img id="cauldronback" src="cauldronback.png" style="position: absolute; top: 0; left: 0; image-rendering: pixelated"/>
@@ -28,15 +28,29 @@
         <button id="makeingotbutton" disabled="true" onclick="makeingot()">MAKE INGOT!</button>
         <div>
             MINING TOOL:
-            <div>HANDLE:</div>
-            <div>HEAD:</div>
-        </div>
+            <div style="position: relative; height: 170px; width: 100px;">
+                <img src="PickaxeStick.png" style="position: absolute; top: 0; left: 0; image-rendering: pixelated"/>
+                <canvas id="pickaxehead" style="position: absolute; top: 0; left: 0;" ondrop="makepickaxe(event)" ondragover="event.preventDefault()"></canvas>
+            </div>
+            <p>Material: <span id="pickaxematerial"/><p/>
+            <p>Mining Speed: <span id="pickaxeminingspeed" /><p/>
+            <p>Durability: <span id="pickaxedurability" /><p/>
+
+    </div>
         <div>
-            <button style="width: 33%; display: block" onclick="BuyCrusher(this.id)">Hire Worker</button>
+            <!--SWORD:-->
         </div>
     </div>
-    <div style="float: right; width: 33%; height: 100%" id="right">
-
+    <div style="float: left; width: 25%; height: 100%" id="column2">
+        <input id ="searchingots" oninput="SearchIngots(this.value)"/>
+    </div>
+    <div style="float: right; width: 25%; height: 100%" id="column3">
+        <!--<p>
+            Level:<span id="enemylevel"></span>
+        </p>
+        <p id="enemytype"/>
+        <p>Health: <progress id="health" value="100" max="100"></progress></p>
+        <button id="attack">Attack!</button>-->
     </div>
     <button onclick="Reset()" style="position: absolute; top: 0; right: 0;">RESET</button>
 </div>
